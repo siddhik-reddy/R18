@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JNTUH Results Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+        .card {
+            background-color: #2d3748;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .input-group input {
+            background-color: #4a5568;
+            border: 1px solid #4a5568;
+            color: #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #63b3ed;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+        }
+        .btn {
+            background-color: #4299e1;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn:hover {
+            background-color: #3182ce;
+        }
+        .btn:disabled {
+            background-color: #4a5568;
+            cursor: not-allowed;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .results-container {
+            margin-top: 2rem;
+            display: none;
+        }
+        .subject-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1rem;
+        }
+        .subject-table th, .subject-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #4a5568;
+        }
+        .subject-table th {
+            font-weight: 600;
+            color: #cbd5e0;
+        }
+        .subject-table tbody tr:hover {
+            background-color: #4a5568;
+        }
+        .subject-table tr:first-child th:first-child {
+            border-top-left-radius: 0.5rem;
+        }
+        .subject-table tr:first-child th:last-child {
+            border-top-right-radius: 0.5rem;
+        }
+        .grade-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .grade-bar {
+            height: 12px;
+            background-color: #4299e1;
+            border-radius: 0.25rem;
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div class="container">
+        <div class="card">
+            <h1 class="text-3xl font-bold text-center text-blue-400">JNTUH Results Portal</h1>
+            <p class="text-center text-gray-400 mt-2">Enter your Hall Ticket Number to view all your results.</p>
+            
+            <form id="resultsForm" class="input-group">
+                <input type="text" id="htnoInput" placeholder="Enter Hall Ticket Number" class="w-full" required>
+                <button type="submit" id="submitBtn" class="btn">Get Results</button>
+            </form>
+            
+            <div id="loading" class="hidden flex justify-center items-center mt-4">
+                <div class="loading-spinner"></div>
+                <p class="ml-4 text-gray-400">Fetching results...</p>
+            </div>
+            
+            <div id="errorMessage" class="hidden mt-4 p-4 rounded-md bg-red-800 text-red-200 text-center font-medium"></div>
+
+            <div id="resultsContainer" class="hidden results-container">
+                <div class="summary-card bg-gray-700 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-xl font-bold text-blue-300">Student Summary</h2>
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-400">Name</p>
+                            <p id="studentName" class="text-lg font-semibold text-white"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-400">Hall Ticket No.</p>
+                            <p id="studentHtno" class="text-lg font-semibold text-white"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-400">Overall CGPA</p>
+                            <p id="overallCGPA" class="text-3xl font-bold text-yellow-300"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-400">Total Semesters</p>
+                            <p id="totalSemesters" class="text-3xl font-bold text-green-300"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="semestersContainer" class="mt-8 space-y-8">
+                    <!-- Semester results will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('resultsForm');
+            const htnoInput = document.getElementById('htnoInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingIndicator = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const studentNameElem = document.getElementById('studentName');
+            const studentHtnoElem = document.getElementById('studentHtno');
+            const overallCGPAElem = document.getElementById('overallCGPA');
+            const totalSemestersElem = document.getElementById('totalSemesters');
+            const semestersContainer = document.getElementById('semestersContainer');
+
+            // Grade point mapping for CGPA calculation
+            const GRADE_POINTS = {
+                'O': 10, 'A+': 9, 'A': 8, 'B+': 7, 'B': 6, 'C': 5, 'D': 4, 'F': 0, 'Ab': 0
+            };
+
+            // Calculate CGPA for a given list of subjects
+            function calculateSemesterCGPA(subjects) {
+                let totalCredits = 0;
+                let totalGradePoints = 0;
+                subjects.forEach(subject => {
+                    const credits = parseFloat(subject.credits) || 0;
+                    const gradePoint = GRADE_POINTS[subject.grade.toUpperCase()] || 0;
+                    totalCredits += credits;
+                    totalGradePoints += gradePoint * credits;
+                });
+                return totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(2) : '0.00';
+            }
+
+            // Render a single semester's results
+            function renderSemester(semester) {
+                const semesterDiv = document.createElement('div');
+                semesterDiv.className = 'semester-card bg-gray-800 p-6 rounded-lg shadow-md';
+                
+                // Using the examCode as a placeholder for the semester name
+                const semesterName = `Semester (${semester.examCode})`;
+                const semesterCGPA = calculateSemesterCGPA(semester.subjects);
+
+                let subjectsHtml = '';
+                semester.subjects.forEach(subject => {
+                    subjectsHtml += `
+                        <tr>
+                            <td class="whitespace-nowrap">${subject.subjectCode}</td>
+                            <td class="w-full">${subject.subjectName}</td>
+                            <td>${subject.internal}</td>
+                            <td>${subject.external}</td>
+                            <td>${subject.total}</td>
+                            <td class="font-bold">${subject.grade}</td>
+                            <td>${subject.credits}</td>
+                        </tr>
+                    `;
+                });
+
+                let gradeDistributionHtml = '';
+                const totalGrades = Object.values(semester.gradeDistribution).reduce((sum, count) => sum + count, 0);
+                for (const grade in semester.gradeDistribution) {
+                    const percentage = totalGrades > 0 ? (semester.gradeDistribution[grade] / totalGrades) * 100 : 0;
+                    gradeDistributionHtml += `
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="font-semibold w-12 text-right">${grade}</span>
+                            <div class="bg-gray-700 w-full rounded-full h-3 overflow-hidden">
+                                <div class="grade-bar bg-blue-500 h-full" style="width: ${percentage}%"></div>
+                            </div>
+                            <span class="w-10 text-left text-sm text-gray-400">${semester.gradeDistribution[grade]}</span>
+                        </div>
+                    `;
+                }
+
+                semesterDiv.innerHTML = `
+                    <h3 class="text-xl font-bold text-white">${semesterName} <span class="text-blue-400 ml-2">(${semesterCGPA} CGPA)</span></h3>
+                    
+                    <div class="mt-4">
+                        <h4 class="font-semibold text-gray-300">Grade Distribution</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                            <div>${gradeDistributionHtml}</div>
+                        </div>
+                    </div>
+
+                    <h4 class="mt-6 font-semibold text-gray-300">Subject Details</h4>
+                    <div class="overflow-x-auto rounded-lg shadow-md mt-2">
+                        <table class="subject-table">
+                            <thead class="bg-gray-700">
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Subject</th>
+                                    <th>Internal</th>
+                                    <th>External</th>
+                                    <th>Total</th>
+                                    <th>Grade</th>
+                                    <th>Credits</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${subjectsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                semestersContainer.appendChild(semesterDiv);
+            }
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const htno = htnoInput.value.trim();
+                
+                // UI state: Loading
+                resultsContainer.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+                loadingIndicator.classList.remove('hidden');
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/results', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ htno }),
+                    });
+
+                    const data = await response.json();
+                    
+                    // Log the full response for debugging
+                    console.log('API Response:', data);
+
+                    if (!response.ok) {
+                        // The server returned an error, display it
+                        throw new Error(data.error || 'Failed to fetch results.');
+                    }
+
+                    // Check if the data object contains results and if the results array is not empty
+                    if (!data.results || data.results.length === 0) {
+                        throw new Error('No valid results found. This could mean the Hall Ticket Number is incorrect or results are not yet published.');
+                    }
+
+                    // UI state: Success
+                    loadingIndicator.classList.add('hidden');
+                    resultsContainer.classList.remove('hidden');
+
+                    // Populate summary
+                    studentNameElem.textContent = data.results[0].name;
+                    studentHtnoElem.textContent = data.results[0].htno;
+                    overallCGPAElem.textContent = data.overallCGPA;
+                    totalSemestersElem.textContent = data.totalSemesters;
+
+                    // Clear previous results and render new ones
+                    semestersContainer.innerHTML = '';
+                    data.results.forEach(renderSemester);
+
+                } catch (error) {
+                    // UI state: Error
+                    loadingIndicator.classList.add('hidden');
+                    errorMessage.textContent = error.message;
+                    errorMessage.classList.remove('hidden');
+                    console.error('Error fetching results:', error);
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
