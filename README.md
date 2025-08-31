@@ -20,10 +20,14 @@ Pre-Requirements
 
 🧑‍💻Requirements
 
-1.whatsapp-web.js (lib for qr-generation and connection with the what’s-app account)\n
+1.whatsapp-web.js (lib for qr-generation and connection with the what’s-app account)
+
 2.qrcode-terminal(for qr-display through the Terminal (CMD))
+
 3.axios
+
 4.jssoup
+
 5. express
 
 🧑‍💻Bot Commands
@@ -53,8 +57,11 @@ Note: Check all the Requirements are installed
 Contributions are welcome! Please feel free to submit pull requests or open issues for:
 
 •	Bug fixes
+
 •	Feature enhancements
+
 •	Documentation improvements
+
 •	Performance optimizations
 
 📄 License
