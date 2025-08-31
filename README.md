@@ -19,26 +19,22 @@ Pre-Requirements
 3.npm
 
 🧑‍💻Requirements
+
 1.whatsapp-web.js (lib for qr-generation and connection with the what’s-app account)
-
 2. qrcode-terminal(for qr-display through the Terminal (CMD))
-   
 3.axios
-
 4.jssoup
-
 5. express
 
 🧑‍💻Bot Commands
-1.Send Hall Ticket: Simply send your hall ticket number (e.g., 18071A0501)
 
+1.Send Hall Ticket: Simply send your hall ticket number (e.g., 18071A0501)
 2.Help: Type help for command information
 
 🚀 Installation
 
-Clone Repo 
+Clone Repo
 git clone https://github.com/siddhik-reddy/R18.git
-
 node index.js
 
 Note: Check all the Requirements are installed 
