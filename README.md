@@ -12,22 +12,16 @@ This is a Bot for what’s-app that can fetch the results and CGPA of R18 throug
 
 Pre-Requirements
 
-1.Node.js (v14 or higher)
-
-2.chrome for QR auth
-
-3.npm
+1. Node.js (v14 or higher)
+2. chrome for QR auth
+3. npm
 
 🧑‍💻Requirements
 
-1.whatsapp-web.js (lib for qr-generation and connection with the what’s-app account)
-
-2.qrcode-terminal(for qr-display through the Terminal (CMD))
-
-3.axios
-
-4.jssoup
-
+1. whatsapp-web.js (lib for qr-generation and connection with the what’s-app account)
+2. qrcode-terminal(for qr-display through the Terminal (CMD))
+3. axios
+4. jssoup
 5. express
 
 🧑‍💻Bot Commands
@@ -45,12 +39,6 @@ git clone https://github.com/siddhik-reddy/R18.git
 node index.js
 
 Note: Check all the Requirements are installed 
-
-✨Screenshot’s
- 	 
-<img width="437" height="254" alt="image" src="https://github.com/user-attachments/assets/3c9297f7-7ac9-41cf-9553-5eac3039593a" />
-<img width="410" height="254" alt="image" src="https://github.com/user-attachments/assets/9746ee18-9ad5-4cd2-ba9b-73ac72bdf3a4" />
-<img width="443" height="285" alt="image" src="https://github.com/user-attachments/assets/70e6a717-893c-4da2-a1cd-5a6673beee48" />
 
 🤝 Contributing
 
