@@ -71,7 +71,9 @@ This project is licensed under the MIT License. See LICENSE file for details.
 🙏 Acknowledgments
 
 •	JNTUH for providing the results API
+
 •	WhatsApp Web.js community for the excellent library
+
 •	All JNTUH students who use this bot
 
    Made with ❤️ for JNTUH Students
