@@ -1,6 +1,9 @@
 JNTUH Results Bot
+
 This is a Bot for what’s-app that can fetch the results and CGPA of R18 through there hall-ticket number
+
 ✨Features
+
 1.	Smart CGPA Calculation
 2.	Backlog Detection
 3.	Real-time Results.
@@ -37,18 +40,24 @@ Note: Check all the Requirements are installed
 <img width="443" height="285" alt="image" src="https://github.com/user-attachments/assets/70e6a717-893c-4da2-a1cd-5a6673beee48" />
 
 🤝 Contributing
+
 Contributions are welcome! Please feel free to submit pull requests or open issues for:
+
 •	Bug fixes
 •	Feature enhancements
 •	Documentation improvements
 •	Performance optimizations
 
 📄 License
+
 This project is licensed under the MIT License. See LICENSE file for details.
+
 🙏 Acknowledgments
+
 •	JNTUH for providing the results API
 •	WhatsApp Web.js community for the excellent library
 •	All JNTUH students who use this bot
-Made with ❤️ for JNTUH Students
+
+   Made with ❤️ for JNTUH Students
 Helping students access their results quickly and efficiently
 
