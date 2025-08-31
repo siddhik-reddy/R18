@@ -1,26 +1,31 @@
 {
-  "name": "jntuh-whatsapp-bot",
+  "name": "whatsapp-chatbot",
   "version": "1.0.0",
-  "description": "WhatsApp bot for JNTUH results with backlog analysis",
-  "main": "whatsapp-bot.js",
+  "description": "A WhatsApp chatbot with QR authentication",
+  "main": "bot.js",
   "scripts": {
-    "start": "node whatsapp-bot.js",
-    "dev": "nodemon whatsapp-bot.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "chatbot",
+    "automation",
+    "qr-auth"
+  ],
+  "author": "SIDDHIK REDDY",
+  "license": "MIT",
   "dependencies": {
-    "whatsapp-web.js": "^1.23.0",
+    "puppeteer": "^21.0.0",
     "qrcode-terminal": "^0.12.0",
-    "axios": "^1.6.0",
-    "jssoup": "^0.0.16",
-    "puppeteer": "^21.0.0"
+    "whatsapp-web.js": "^1.33.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.0"
+    "nodemon": "^3.0.2"
   },
   "engines": {
     "node": ">=16.0.0"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }
