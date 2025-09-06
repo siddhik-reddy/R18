@@ -44,6 +44,11 @@ const GRADE_POINTS = {
     'O': 10, 'A+': 9, 'A': 8, 'B+': 7, 'B': 6, 'C': 5, 'D': 4, 'F': 0, 'AB': 0, 'MP': 0
 };
 
+// Add percentage calculation mapping
+const GRADE_PERCENTAGE = {
+    'O': 90, 'A+': 80, 'A': 70, 'B+': 60, 'B': 55, 'C': 50, 'D': 45, 'F': 0, 'AB': 0, 'MP': 0
+};
+
 let examCodes = {};
 
 // Bot configuration
@@ -340,6 +345,24 @@ function calculateCGPA(subjects) {
     return totalCredits > 0 ? (totalGradePoints / totalCredits) : 0;
 }
 
+// Add percentage calculation function
+function calculatePercentage(subjects) {
+    let totalPercentage = 0;
+    let totalCredits = 0;
+    
+    for (let subject of subjects) {
+        const grade = subject.grade.toUpperCase();
+        const credits = parseFloat(subject.credits);
+        
+        if (GRADE_PERCENTAGE.hasOwnProperty(grade) && !isNaN(credits)) {
+            totalPercentage += GRADE_PERCENTAGE[grade] * credits;
+            totalCredits += credits;
+        }
+    }
+    
+    return totalCredits > 0 ? (totalPercentage / totalCredits) : 0;
+}
+
 function findBacklogs(subjects) {
     return subjects.filter(subject => {
         const grade = subject.grade.toUpperCase();
@@ -401,6 +424,7 @@ function formatAllResults(results) {
     const studentInfo = results[0];
     let totalCredits = 0;
     let totalGradePoints = 0;
+    let totalPercentage = 0;
     
     // Find current backlogs (not historical)
     const currentBacklogs = findCurrentBacklogs(results);
@@ -417,13 +441,14 @@ function formatAllResults(results) {
         const semesterName = getSemesterName(result.examCode);
         const cgpa = calculateCGPA(result.subjects);
         
-        // Calculate for overall CGPA
+        // Calculate for overall CGPA and percentage
         result.subjects.forEach(subject => {
             const grade = subject.grade.toUpperCase();
             const credits = parseFloat(subject.credits);
             
             if (GRADE_POINTS.hasOwnProperty(grade) && !isNaN(credits)) {
                 totalGradePoints += GRADE_POINTS[grade] * credits;
+                totalPercentage += GRADE_PERCENTAGE[grade] * credits;
                 totalCredits += credits;
             }
         });
@@ -432,9 +457,11 @@ function formatAllResults(results) {
     });
     
     const overallCGPA = totalCredits > 0 ? (totalGradePoints / totalCredits) : 0;
+    const overallPercentage = totalCredits > 0 ? (totalPercentage / totalCredits) : 0;
     
     message += `\n📊 *OVERALL STATISTICS:*\n`;
     message += `🎯 *Overall CGPA:* ${overallCGPA.toFixed(2)}\n`;
+    message += `📈 *Overall Percentage:* ${overallPercentage.toFixed(2)}%\n`;
     message += `📚 *Current Backlogs:* ${currentBacklogs.length}\n`;
     message += `🏆 *Academic Status:* ${currentBacklogs.length === 0 ? '✅ CLEAR' : '🔴 BACKLOGS PENDING'}\n`;
     
@@ -444,64 +471,6 @@ function formatAllResults(results) {
             message += `• ${subject.subjectCode} - ${subject.subjectName} (${subject.grade})\n`;
         });
         message += `\n💡 *Note:* These are subjects you still need to clear.`;
-    } else {
-        message += `\n🎉 *Congratulations!* All subjects cleared successfully.`;
-    }
-    
-    return message;
-}
-
-function formatAllResults(results) {
-    if (!results || results.length === 0) {
-        return '❌ No results found for this hall ticket number.';
-    }
-    
-    const studentInfo = results[0];
-    let totalCredits = 0;
-    let totalGradePoints = 0;
-    
-    // Find current backlogs (only subjects that are still pending)
-    const currentBacklogs = findCurrentBacklogs(results);
-    
-    let message = `🎓 *JNTUH Complete Results*\n\n`;
-    message += `👤 *Name:* ${studentInfo.name}\n`;
-    message += `🎫 *Hall Ticket:* ${studentInfo.htno}\n`;
-    message += `📊 *Total Semesters:* ${results.length}\n\n`;
-    
-    message += `📈 *Semester Wise CGPA:*\n`;
-    message += `${'─'.repeat(25)}\n`;
-    
-    results.forEach(result => {
-        const semesterName = getSemesterName(result.examCode);
-        const cgpa = calculateCGPA(result.subjects);
-        
-        // Calculate for overall CGPA
-        result.subjects.forEach(subject => {
-            const grade = subject.grade.toUpperCase();
-            const credits = parseFloat(subject.credits);
-            
-            if (GRADE_POINTS.hasOwnProperty(grade) && !isNaN(credits)) {
-                totalGradePoints += GRADE_POINTS[grade] * credits;
-                totalCredits += credits;
-            }
-        });
-        
-        message += `📚 *${semesterName}:* ${cgpa.toFixed(2)}\n`;
-    });
-    
-    const overallCGPA = totalCredits > 0 ? (totalGradePoints / totalCredits) : 0;
-    
-    message += `\n📊 *OVERALL STATISTICS:*\n`;
-    message += `🎯 *Overall CGPA:* ${overallCGPA.toFixed(2)}\n`;
-    message += `📚 *Current Backlogs:* ${currentBacklogs.length}\n`;
-    message += `🏆 *Academic Status:* ${currentBacklogs.length === 0 ? '✅ ALL CLEAR' : '🔴 BACKLOGS PENDING'}\n`;
-    
-    if (currentBacklogs.length > 0) {
-        message += `\n🔴 *Pending Backlogs:*\n`;
-        currentBacklogs.forEach(subject => {
-            message += `• ${subject.subjectCode} - ${subject.subjectName} (${subject.grade})\n`;
-        });
-        message += `\n💡 *Note:* These subjects still need to be cleared.`;
     } else {
         message += `\n🎉 *Congratulations!* All subjects cleared successfully.`;
     }
@@ -575,7 +544,7 @@ function getHelpMessage() {
 • 18071A0501
 
 ⚡ *What you'll get:*
-• Overall CGPA
+• Overall CGPA and Percentage
 • Semester-wise CGPA
 • Current pending backlogs (if any)
 • Complete academic status
@@ -668,7 +637,7 @@ client.on('message_create', async (msg) => {
                            `📋 *Example:*\n` +
                            `18071A0501\n\n` +
                            `🎯 *What you'll get:*\n` +
-                           `• Overall CGPA\n` +
+                           `• Overall CGPA and Percentage\n` +
                            `• Semester-wise CGPA\n` +
                            `• Current backlogs (if any)\n` +
                            `• Academic status\n\n` +
